@@ -34,7 +34,6 @@ void setup() {
   setupSerial();
   setupStrip();
   setupWifi();
-  setupTouchSensor();
   syncTimeFromWifi();
   digitalWrite(LED_BUILTIN, HIGH);
 }
@@ -114,7 +113,7 @@ void figureOutWhatToShow()
   {
     final_brightness = getBrightnessOverride(255);
     FastLED.setBrightness(final_brightness);
-    plasma();
+    flame_loop();
   }
   else if (h >= 21 && h < 22)
   {
@@ -150,11 +149,6 @@ void loop()  {
   figureOutWhatToShow();
   FastLED.show();
   wifiEvents();
-  if (isTouched())
-  {
-    Serial.println("I got touched!");
-    toggleOverride();
-  }
   EVERY_N_SECONDS(3600)
   {
     syncTimeFromWifi();
