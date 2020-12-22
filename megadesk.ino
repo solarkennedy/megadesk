@@ -38,57 +38,6 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
-uint8 getBrightnessOverride(uint8 original)
-{
-  if (override_timer != 0)
-  {
-    EVERY_N_SECONDS(1)
-    {
-      override_timer--;
-    }
-  }
-  int b;
-  Serial.print("Override timer: ");
-  Serial.print(override_timer);
-  Serial.print("  Mode: ");
-  Serial.println(override_mode);
-  if (override_timer == 0)
-  {
-    b = original;
-  }
-  else if (override_mode)
-  {
-    // The first 30 seconds of override, we fade down
-    if (override_timer > (override_duration - 30))
-    {
-      Serial.println(override_timer - (override_duration - 30));
-      b = map(override_timer - (override_duration - 30), 30, 0, int(original), 0);
-    }
-    else
-    { // after the first seconds of the override
-      b = 0;
-    }
-  }
-  else
-  { // override canceld
-    if (original == 0)
-    {
-      // fading back to black
-      b = map(override_timer, 10, 0, 255, original);
-    }
-    else
-    {
-      // Fading back to whatever we had before
-      b = map(override_timer, 10, 0, 0, original);
-    }
-  }
-  Serial.print("Override brightness: ");
-  Serial.print(b);
-  Serial.print("  - original: ");
-  Serial.println(original);
-  return b;
-}
-
 void figureOutWhatToShow()
 {
   uint8 brightness;
@@ -98,51 +47,29 @@ void figureOutWhatToShow()
 
   if (h >= 0 && h < wakeup_hour)
   {
-    final_brightness = getBrightnessOverride(0);
-    FastLED.setBrightness(final_brightness);
-    pacifica_loop();
+    FastLED.setBrightness(0);
   }
   else if (h >= wakeup_hour && h < wakeup_hour + 1)
   {
     brightness = map(getMinuteOfTheHour() * 60 + getSecond(), 0, 3600, 0, 255);
-    final_brightness = getBrightnessOverride(brightness);
-    FastLED.setBrightness(final_brightness);
+    FastLED.setBrightness(brightness);
     pacifica_loop();
   }
   else if (h >= wakeup_hour + 1 && h < 21)
   {
-    final_brightness = getBrightnessOverride(255);
-    FastLED.setBrightness(final_brightness);
+    FastLED.setBrightness(255);
     flame_loop();
   }
   else if (h >= 21 && h < 22)
   {
     brightness = map(getMinuteOfTheHour() * 60 + getSecond(), 0, 3600, 255, 0);
-    final_brightness = getBrightnessOverride(brightness);
-    FastLED.setBrightness(final_brightness);
+    FastLED.setBrightness(brightness);
     flame_loop();
   }
   else
   {
-    final_brightness = getBrightnessOverride(0);
-    FastLED.setBrightness(final_brightness);
-    flame_loop();
+    FastLED.setBrightness(0);
   }
-}
-
-void toggleOverride()
-{
-  if (override_timer == 0)
-  {
-    // Toggling in
-    override_timer = 3600;
-  }
-  else
-  {
-    // Toggling out, give us some seconds to wakeup
-    override_timer = 10;
-  }
-  override_mode = !override_mode;
 }
 
 void loop()  {
