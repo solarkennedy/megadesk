@@ -1,4 +1,7 @@
 
+#define COOLING 20 // defines the level at which the lighting effect fades before a new "flame" generates
+#define SPARKING 20
+
 void Fire2012WithPalette()   // defines a new function
 {
 

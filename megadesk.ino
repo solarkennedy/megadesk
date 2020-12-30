@@ -2,18 +2,12 @@
 #define POWER_DEBUG_PRINT 1
 #define FASTLED_INTERRUPT_RETRY_COUNT 1
 
-#define COOLING 20 // defines the level at which the lighting effect fades before a new "flame" generates
-#define SPARKING 20
-
 #define FASTLED_ALLOW_INTERRUPTS 0
 #define FASTLED_INTERRUPT_RETRY_COUNT 1
 #include <FastLED.h>
 
-int wait = 0;
-int faderate = 40000;
-
 #define DATA_PIN 0
-#define NUM_LEDS 300
+#define NUM_LEDS 216
 #define MAX_POWER_MILLIAMPS 50000
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
@@ -23,10 +17,6 @@ CRGB leds[NUM_LEDS];
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 CRGBPalette16 gPal;
-
-bool override_mode = false;
-int override_timer = 0;
-int override_duration = 3600;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -41,7 +31,6 @@ void setup() {
 void figureOutWhatToShow()
 {
   uint8 brightness;
-  uint8 final_brightness;
   uint8 h = getHour();
   int wakeup_hour = getWakeupHour();
 

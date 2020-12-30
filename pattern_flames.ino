@@ -44,7 +44,7 @@ void flame_loop()
   // Each is incremented at a different speed, and the speeds vary over time.
   static uint16_t sCIStart1, sCIStart2, sCIStart3, sCIStart4;
   static uint32_t sLastms = 0;
-  uint32_t ms = GET_MILLIS();
+  uint32_t ms = GET_MILLIS() / 2;
   uint32_t deltams = ms - sLastms;
   sLastms = ms;
   uint16_t speedfactor1 = beatsin16(3, 179, 269);
