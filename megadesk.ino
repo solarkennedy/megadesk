@@ -18,6 +18,7 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 CRGBPalette16 gPal;
 
+
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
@@ -25,6 +26,7 @@ void setup() {
   setupStrip();
   setupWifi();
   syncTimeFromWifi();
+  sendPushNotification();
   digitalWrite(LED_BUILTIN, HIGH);
 }
 

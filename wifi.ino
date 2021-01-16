@@ -3,6 +3,8 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <ESP8266HTTPClient.h>
+#include "secrets.h"
 
 char ssid[32] = "";
 char password[32] = "";
@@ -87,4 +89,24 @@ void loadCredentials() {
   Serial.print(ssid);
   Serial.print(" / ");
   Serial.println(password);
+}
+
+void sendPushNotification() {
+  BearSSL::WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.begin(client, "gotify.xkyle.com", 443, "/message?token="GOTIFY_TOKEN);
+  http.addHeader("Content-Type", "application/json");
+  uint16_t httpResponseCode;
+
+  httpResponseCode = http.POST("{\"message\": \"Megadesk Booted\",\"title\": \"Megadesk Booted\",\"priority\": 1}");
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println(httpResponseCode);
+    Serial.println(response);
+  } else {
+    Serial.print("Error on sending POST: ");
+    Serial.println(httpResponseCode);
+  }
+  http.end();
 }
