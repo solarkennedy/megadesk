@@ -1,4 +1,3 @@
-#include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
@@ -6,23 +5,14 @@
 #include <ESP8266HTTPClient.h>
 #include "secrets.h"
 
-char ssid[32] = "";
-char password[32] = "";
-
 void wifiEvents() {
   ArduinoOTA.handle();
 }
 
 void setupWifi() {
-  loadCredentials();
-
-  Serial.println("Booting");
+  Serial.println("Setting up wifi");
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to: ");
-  Serial.println(ssid);
-  Serial.print("With password: ");
-  Serial.println(password);
+  WiFi.begin(WIFI_ESSID, WIFI_PASSWORD);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.println("Connection Failed! Rebooting...");
     for (int i = 0; i < 25; i++ ) {
@@ -44,7 +34,6 @@ void setupWifi() {
     } else { // U_SPIFFS
       type = "filesystem";
     }
-
     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
     Serial.println("Start updating " + type);
   });
@@ -72,23 +61,6 @@ void setupWifi() {
   Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-}
-
-void loadCredentials() {
-  EEPROM.begin(512);
-  EEPROM.get(0, ssid);
-  EEPROM.get(0 + sizeof(ssid), password);
-  char ok[2 + 1];
-  EEPROM.get(0 + sizeof(ssid) + sizeof(password), ok);
-  EEPROM.end();
-  if (String(ok) != String("OK")) {
-    ssid[0] = 0;
-    password[0] = 0;
-  }
-  Serial.println("Recovered credentials: ");
-  Serial.print(ssid);
-  Serial.print(" / ");
-  Serial.println(password);
 }
 
 void sendPushNotification() {
