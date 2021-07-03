@@ -1,4 +1,3 @@
-#define FASTLED_ALLOW_INTERRUPTS 0
 #define POWER_DEBUG_PRINT 1
 #define FASTLED_INTERRUPT_RETRY_COUNT 1
 
@@ -18,6 +17,8 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 CRGBPalette16 gPal;
 
+bool RemoteToggle = true;
+int faderate = 5;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -30,6 +31,18 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
+int calculateBrightness(int b, int rate) {
+  EVERY_N_MILLISECONDS(200) {
+    b += rate;
+  }
+  if (b < 0) {
+    b = 0;
+  } else if (b > 255) {
+    b = 255;
+  }
+  return b;
+}
+
 void figureOutWhatToShow()
 {
   uint8 brightness;
@@ -38,32 +51,41 @@ void figureOutWhatToShow()
 
   if (h >= 0 && h < wakeup_hour)
   {
-    FastLED.setBrightness(0);
+    brightness = 0;
   }
   else if (h >= wakeup_hour && h < wakeup_hour + 1)
   {
     brightness = map(getMinuteOfTheHour() * 60 + getSecond(), 0, 3600, 0, 255);
-    FastLED.setBrightness(brightness);
     pacifica_loop();
   }
   else if (h >= wakeup_hour + 1 && h < 21)
   {
-    FastLED.setBrightness(255);
+    brightness = 255;
     flame_loop();
   }
   else if (h >= 21 && h < 22)
   {
     brightness = map(getMinuteOfTheHour() * 60 + getSecond(), 0, 3600, 255, 0);
-    FastLED.setBrightness(brightness);
     flame_loop();
   }
   else
   {
-    FastLED.setBrightness(0);
+    brightness = 0;
+  }
+  brightness = calculateBrightness(brightness, faderate);
+  FastLED.setBrightness(brightness);
+}
+
+void reactToRemote() {
+  if (RemoteToggle) {
+    faderate = 10;
+  } else {
+    faderate = -10;
   }
 }
 
 void loop()  {
+  reactToRemote();
   figureOutWhatToShow();
   FastLED.show();
   wifiEvents();
